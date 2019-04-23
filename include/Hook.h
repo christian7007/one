@@ -242,10 +242,7 @@ public:
 
         for (int i=0; i<sz ; i++)
         {
-            if ( hooks[i]->type() & hook_mask )
-            {
                 hooks[i]->do_hook(arg);
-            }
         }
     };
 

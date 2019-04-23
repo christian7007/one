@@ -29,6 +29,8 @@ end
 $: << RUBY_LIB_LOCATION
 
 require 'OpenNebulaDriver'
+require 'rubygems'
+require 'ffi-rzmq'
 
 class HookManagerDriver < OpenNebulaDriver
     def initialize(options)
@@ -40,26 +42,25 @@ class HookManagerDriver < OpenNebulaDriver
 
         super('', @options)
 
+        #Initialize hm publisher socket
+        context = ZMQ::Context.new(1)
+        @publisher = context.socket(ZMQ::PUB)
+        @publisher.bind("tcp://*:5556")
+
         register_action(:EXECUTE, method("action_execute"))
     end
 
     def action_execute(number, hook_name, host, script, *arguments)
-        cmd=nil
-        cmd_string="#{script} #{arguments.join(' ')}"
+        key = "#{hook_name} #{number}"
+        val = "#{host} #{script} #{arguments.join(' ')}\n"
 
-        if host.upcase=="LOCAL"
-            cmd=LocalCommand.run(cmd_string, log_method(number))
-        else
-            cmd=SSHCommand.run("'#{cmd_string}'", host, log_method(number))
+        File.open("/tmp/out", "a") do |f|
+            f.write("#{key} #{val}")
         end
 
-        if cmd.code==0
-            message = "#{hook_name}: #{cmd.stdout}"
-            send_message("EXECUTE", RESULT[:success], number, message)
-        else
-            message = "#{hook_name}: #{cmd.get_error_message}"
-            send_message("EXECUTE", RESULT[:failure], number, message)
-        end
+        #using envelopes for splitting key/val (http://zguide.zeromq.org/page:all#Pub-Sub-Message-Envelopes)
+        @publisher.send_string key, ZMQ::SNDMORE
+        @publisher.send_string val
     end
 end
 
