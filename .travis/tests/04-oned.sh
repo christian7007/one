@@ -25,7 +25,7 @@ echo "oneadmin:opennebula" > $HOME/.one/one_auth
 echo "PATH:\n"
 echo $PATH
 echo "FIND OUTPUT:\n"
-find / -name bundler
+sudo find / -name bundler
 
 # Install gems
 sudo /usr/share/one/install_gems --yes
