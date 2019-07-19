@@ -23,5 +23,6 @@ before_install:
   - sudo npm install -g grunt
   - sudo npm install -g grunt-cli
   - (cd src/sunstone/public && npm install && bower install)
+  - sudo gem install bundler
 script:
   - set -o errexit; source .travis/smoke_tests.sh
