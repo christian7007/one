@@ -387,7 +387,7 @@ def run_command(cmd)
 end
 
 def bundler_install
-    rc = system("bundler install --system --gemfile='#{$gemfile}'")
+    rc = system("/home/travis/.rvm/rubies/ruby-2.5.3/bin/bundler install --system --gemfile='#{$gemfile}'")
 
     if !rc
         STDERR.puts "Error installing gems"
@@ -564,6 +564,8 @@ def find_gemfile_path
 
     path
 end
+
+puts "INSTALL_GEMS_PATH:\n ENV["PATH"]"
 
 try_library :rubygems, <<-EOT.unindent
     rubygems required to use this tool
