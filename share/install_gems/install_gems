@@ -565,7 +565,7 @@ def find_gemfile_path
     path
 end
 
-puts "INSTALL_GEMS_PATH:\n ENV["PATH"]"
+puts "INSTALL_GEMS_PATH:\n #{ENV['PATH']}"
 
 try_library :rubygems, <<-EOT.unindent
     rubygems required to use this tool
