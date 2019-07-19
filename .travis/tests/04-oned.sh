@@ -28,6 +28,7 @@ echo "FIND OUTPUT:\n"
 sudo find / -name bundler
 
 # Install gems
+sudo rvm repair wrappers
 sudo /usr/share/one/install_gems --yes
 
 # Enable dummy drivers
