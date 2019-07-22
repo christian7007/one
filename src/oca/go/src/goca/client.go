@@ -27,7 +27,7 @@ import (
 	errs "github.com/OpenNebula/one/src/oca/go/src/goca/errors"
 
 	cleanhttp "github.com/hashicorp/go-cleanhttp"
-	"github.com/kolo/xmlrpc"
+	xmlrpc "github.com/kolo/xmlrpc"
 )
 
 // OneConfig contains the information to communicate with OpenNebula
