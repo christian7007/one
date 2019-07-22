@@ -31,8 +31,6 @@ sudo find / -name bundler
 source /home/travis/.rvm/scripts/rvm 
 rvm repair wrappers
 
-exit -1
-
 rvmsudo /usr/share/one/install_gems --yes
 
 # Enable dummy drivers
