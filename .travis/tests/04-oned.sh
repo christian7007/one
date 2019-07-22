@@ -43,3 +43,5 @@ one start
 
 # check it's up
 timeout 60 sh -c 'until nc -z $0 $1; do sleep 1; done' localhost 2633
+
+pgrep oned
