@@ -28,8 +28,16 @@ echo "FIND OUTPUT:\n"
 sudo find / -name bundler
 
 # Install gems
-source ~/.rvm/scripts/rvm 
-sudo rvm repair wrappers
+sudo source /home/travis/.rvm/scripts/rvm 
+rvm repair wrappers
+
+sudo rvm
+sudo ruby -version
+sudo which ruby
+sudo -c "echo $PATH"
+
+exit -1
+
 sudo /usr/share/one/install_gems --yes
 
 # Enable dummy drivers
