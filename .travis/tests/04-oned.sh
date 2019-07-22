@@ -28,7 +28,7 @@ echo "FIND OUTPUT:\n"
 sudo find / -name bundler
 
 # Install gems
-sudo source /usr/local/rvm/scripts/rvm 
+source .rvm/scripts/rvm 
 sudo rvm repair wrappers
 sudo /usr/share/one/install_gems --yes
 
