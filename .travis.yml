@@ -15,7 +15,6 @@
 #--------------------------------------------------------------------------- #
 
 dist: xenial
-language: go
 before_install:
   - sudo apt-get install -y libsystemd-dev bash-completion bison debhelper default-jdk flex javahelper libmysql++-dev libsqlite3-dev libssl-dev libws-commons-util-java libxml2-dev libxmlrpc3-client-java libxmlrpc3-common-java libxslt1-dev libcurl4-openssl-dev ruby scons libxmlrpc-c++8-dev npm libvncserver-dev qemu-utils libmysqlclient-dev
   - gem install rubocop
@@ -25,6 +24,5 @@ before_install:
   - (cd src/sunstone/public && npm install && bower install)
   - gem update --system
   - gem install bundler
-  - go get github.com/kolo/xmlrpc
 script:
   - set -o errexit; source .travis/smoke_tests.sh
