@@ -31,14 +31,14 @@ sudo find / -name bundler
 sudo source /home/travis/.rvm/scripts/rvm 
 rvm repair wrappers
 
-sudo rvm
-sudo ruby -version
+rvmsudo rvm
+sudo ruby --version
 sudo which ruby
 sudo -c "echo $PATH"
 
 exit -1
 
-sudo /usr/share/one/install_gems --yes
+rvmsudo /usr/share/one/install_gems --yes
 
 # Enable dummy drivers
 sudo chmod o+w /etc/one/oned.conf
