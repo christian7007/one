@@ -22,11 +22,6 @@ sudo ./install.sh -u travis
 mkdir $HOME/.one
 echo "oneadmin:opennebula" > $HOME/.one/one_auth
 
-echo "PATH:\n"
-echo $PATH
-echo "FIND OUTPUT:\n"
-sudo find / -name bundler
-
 # Install gems
 source /home/travis/.rvm/scripts/rvm 
 rvm repair wrappers

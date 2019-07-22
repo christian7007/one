@@ -22,5 +22,7 @@ go get
 go get gopkg.in/check.v1
 go get github.com/kolo/xmlrpc
 
+go build
+
 # run tests
 go test
