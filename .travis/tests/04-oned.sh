@@ -28,13 +28,8 @@ echo "FIND OUTPUT:\n"
 sudo find / -name bundler
 
 # Install gems
-sudo source /home/travis/.rvm/scripts/rvm 
+source /home/travis/.rvm/scripts/rvm 
 rvm repair wrappers
-
-rvmsudo rvm
-sudo ruby --version
-sudo which ruby
-sudo -c "echo $PATH"
 
 exit -1
 
