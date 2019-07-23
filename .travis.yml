@@ -24,9 +24,7 @@ before_install:
   - (cd src/sunstone/public && npm install && bower install)
   - gem update --system
   - gem install bundler
+  - eval "$(curl -sL https://raw.githubusercontent.com/travis-ci/gimme/master/gimme | GIMME_GO_VERSION=1.12 bash)"
 script:
   - set -o errexit; source .travis/smoke_tests.sh
-language: go
 
-go:
-  - "1.12"
