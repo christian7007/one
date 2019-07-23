@@ -18,9 +18,9 @@
 cd src/oca/go/src/goca
 
 # install dependencies
-go get -t
+go get 
 go get gopkg.in/check.v1
-go get github.com/kolo/xmlrpc
+go get 
 # run tests
 go test
 
