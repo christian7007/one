@@ -51,17 +51,17 @@ module OpenNebula
         # XML-RPC Methods for the HookLog object
         #######################################################################
 
-        def info(min_ts, max_ts, hook_id, rrc_hookc)
+        def info(min_ts, max_ts, hook_id, hook_rc)
             rc = @client.call(HOOK_LOG_METHODS[:info], min_ts, max_ts,
-                              hook_id, rc_hook)
+                              hook_id, hook_rc)
 
-            if !OpenNebula.is_error?(rc)
-                initialize_xml(rc, ROOT_NAME)
+            if !OpenNebula.is_error?(hook_rc)
+                initialize_xml(hook_rc, ROOT_NAME)
 
                 rc = nil
             end
 
-            return rc
+            rc
         end
 
         alias :info! info
