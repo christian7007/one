@@ -314,7 +314,7 @@ class BackEndMySQL < OneDBBacKEnd
             raise "Table and database charset (#{db_enc}, #{table_enc}) differs"
         end
 
-        @encoding = table_enc
+        @encoding = table_enc 
     end
 
     def restore(bck_file, force=nil, federated=false)
