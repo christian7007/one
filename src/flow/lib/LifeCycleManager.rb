@@ -46,10 +46,9 @@ class ServiceLCM
 
     def initialize(concurrency, cloud_auth)
         @cloud_auth = cloud_auth
-        @client = @cloud_auth.client
         @event_manager = nil
         @am = ActionManager.new(concurrency, true)
-        @srv_pool = ServicePool.new(@client)
+        @srv_pool = ServicePool.new(@cloud_auth, nil)
 
         # Register Action Manager actions
         @am.register_action(ACTIONS['DEPLOY'], method('deploy_action'))

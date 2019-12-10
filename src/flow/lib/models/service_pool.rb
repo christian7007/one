@@ -15,12 +15,29 @@
 #--------------------------------------------------------------------------- #
 
 module OpenNebula
-    class ServicePool < DocumentPoolJSON
+
+    # ServicePool class
+    class OpenNebulaServicePool < DocumentPoolJSON
 
         DOCUMENT_TYPE = 100
 
+        def initialize(client, user_id = -1)
+            super(client, user_id)
+        end
+
+        def factory(element_xml)
+            service = OpenNebula::Service.new(element_xml, @client)
+            service.load_body
+            service
+        end
+
+    end
+
+    # ServicePool class
+    class ServicePool
+
         @@mutex      = Mutex.new
-        @@mutex_hash = Hash.new
+        @@mutex_hash = {}
 
         # Class constructor
         #
@@ -29,14 +46,30 @@ module OpenNebula
         #   http://opennebula.org/documentation:rel3.6:api
         #
         # @return [DocumentPool] the new object
-        def initialize(client, user_id=-1)
-            super(client, user_id)
+        def initialize(cloud_auth, client)
+            # TODO, what if cloud_auth is nil?
+            @cloud_auth = cloud_auth
+            @client = client
+            @body = nil
         end
 
-        def factory(element_xml)
-            service = OpenNebula::Service.new(element_xml, @client)
-            service.load_body
-            service
+        def client
+            # If there's a client defined use it
+            return @client unless @client.nil?
+
+            # If not, get one via cloud_auth
+            @cloud_auth.client
+        end
+
+        def info
+            osp = OpenNebulaServicePool.new(client)
+            osp.info
+
+            @body = osp.to_json
+        end
+
+        def to_json
+            @body
         end
 
         # Retrieves a Service element from OpenNebula. The Service::info()
@@ -49,7 +82,7 @@ module OpenNebula
         # @return [Service, OpenNebula::Error] The Service in case of success
         def get(service_id, &block)
             service_id = service_id.to_i if service_id
-            service = Service.new_with_id(service_id, @client)
+            service = Service.new_with_id(service_id, client)
 
             if block_given?
                 obj_mutex = nil

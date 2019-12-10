@@ -143,7 +143,7 @@ ServiceTemplate.init_default_vn_name_template(conf[:vn_name_template])
 lcm = ServiceLCM.new(10, cloud_auth)
 
 em_conf = {
-    :client      => cloud_auth.client,
+    :cloud_auth      => cloud_auth,
     :concurrency => 10
 }
 
@@ -157,7 +157,7 @@ em.lcm = lcm.am
 ##############################################################################
 
 get '/service' do
-    service_pool = OpenNebula::ServicePool.new(@client, OpenNebula::Pool::INFO_ALL)
+    service_pool = OpenNebula::ServicePool.new(nil, @client)
 
     rc = service_pool.info
     if OpenNebula.is_error?(rc)

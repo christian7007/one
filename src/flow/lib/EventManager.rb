@@ -57,7 +57,7 @@ class EventManager
         :subscriber_endpoint  => 'tcp://localhost:2101',
         :timeout_s   => 30,
         :concurrency => 10,
-        :client      => nil
+        :cloud_auth  => nil
     }
 
     def initialize(options)
@@ -67,7 +67,7 @@ class EventManager
         @am  = ActionManager.new(@conf[:concurrency], true)
 
         @context = ZMQ::Context.new(1)
-        @client  = @conf[:client]
+        @cloud_auth = @conf[:cloud_auth]
 
         # Register Action Manager actions
         @am.register_action(ACTIONS['WAIT_DEPLOY'], method('wait_deploy_action'))
@@ -248,7 +248,7 @@ class EventManager
 
         nodes.delete_if do |node|
             vm = OpenNebula::VirtualMachine
-                 .new_with_id(node, @client)
+                 .new_with_id(node, @cloud_auth.client)
 
             vm.info
 
