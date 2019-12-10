@@ -119,10 +119,9 @@ class ServiceLCM
             set_deploy_strategy(service)
 
             # If the service is in transient state,
-            # stop current action before undeploying the service
+            # stop other waits for the service
             if service.transient_state?
                 @event_manager.cancel_action(service_id)
-                @am.cancel_action(service_id)
             end
 
             roles = service.roles_shutdown
@@ -240,6 +239,9 @@ class ServiceLCM
 
     def deploy_failure_cb(service_id, role_name)
         rc = @srv_pool.get(service_id) do |service|
+            # stop actions for the service if deploy fails
+            @event_manager.cancel_action(service_id)
+
             service.set_state(Service::STATE['FAILED_DEPLOYING'])
             service.roles[role_name].set_state(Role::STATE['FAILED_DEPLOYING'])
 
@@ -279,6 +281,9 @@ class ServiceLCM
 
     def undeploy_failure_cb(service_id, role_name, nodes)
         rc = @srv_pool.get(service_id) do |service|
+            # stop actions for the service if deploy fails
+            @event_manager.cancel_action(service_id)
+
             service.set_state(Service::STATE['FAILED_UNDEPLOYING'])
             service.roles[role_name].set_state(Role::STATE['FAILED_UNDEPLOYING'])
 
@@ -336,6 +341,9 @@ class ServiceLCM
 
     def scaleup_failure_cb(service_id, role_name)
         rc = @srv_pool.get(service_id) do |service|
+            # stop actions for the service if deploy fails
+            @event_manager.cancel_action(service_id)
+
             service.set_state(Service::STATE['FAILED_SCALING'])
             service.roles[role_name].set_state(Role::STATE['FAILED_SCALING'])
 
@@ -349,6 +357,9 @@ class ServiceLCM
 
     def scaledown_failure_cb(service_id, role_name, nodes)
         rc = @srv_pool.get(service_id) do |service|
+            # stop actions for the service if deploy fails
+            @event_manager.cancel_action(service_id)
+
             role = service.roles[role_name]
 
             service.set_state(Service::STATE['FAILED_SCALING'])
