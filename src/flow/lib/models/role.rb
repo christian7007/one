@@ -466,7 +466,7 @@ module OpenNebula
                 end
             }
 
-            return [true, nil]
+            [true, nil]
         end
 
         # Schedule the given action on all the VMs that belong to the Role
@@ -482,26 +482,32 @@ module OpenNebula
             nodes = @body['nodes']
             now = Time.now.to_i
 
-            do_offset = ( !period.nil? && period.to_i > 0 &&
-                !vms_per_period.nil? && vms_per_period.to_i > 0 )
+            do_offset = (!period.nil? && period.to_i > 0 &&
+                !vms_per_period.nil? && vms_per_period.to_i > 0)
 
             time_offset = 0
 
             nodes.each_with_index do |node, index|
                 vm_id = node['deploy_id']
-                vm = OpenNebula::VirtualMachine.new_with_id(vm_id, @service.client)
+                vm = OpenNebula::VirtualMachine.new_with_id(vm_id,
+                                                            @service.client)
+
                 rc = vm.info
 
                 if OpenNebula.is_error?(rc)
-                    msg = "Role #{name} : VM #{vm_id} monitorization failed; #{rc.message}"
+                    msg = "Role #{name} : VM #{vm_id} monitorization failed;"\
+                          " #{rc.message}"
+
                     error_msgs << msg
-                    Log.error LOG_COMP, msg, @service.id()
+
+                    Log.error LOG_COMP, msg, @service.id
+
                     @service.log_error(msg)
                 else
                     ids = vm.retrieve_elements('USER_TEMPLATE/SCHED_ACTION/ID')
 
                     id = 0
-                    if (!ids.nil? && !ids.empty?)
+                    if !ids.nil? && !ids.empty?
                         ids.map! {|e| e.to_i }
                         id = ids.max + 1
                     end
@@ -509,17 +515,22 @@ module OpenNebula
                     tmp_str = vm.user_template_str
 
                     if do_offset
-                        time_offset = (index / vms_per_period.to_i).floor * period.to_i
+                        offset = (index / vms_per_period.to_i).floor
+                        time_offset = offset * period.to_i
                     end
 
-                    tmp_str << "\nSCHED_ACTION = "<<
-                        "[ID = #{id}, ACTION = #{action}, TIME = #{now + time_offset}]"
+                    tmp_str << "\nSCHED_ACTION = [ID = #{id},ACTION = "\
+                               "#{action}, TIME = #{now + time_offset}]"
 
                     rc = vm.update(tmp_str)
                     if OpenNebula.is_error?(rc)
-                        msg = "Role #{name} : VM #{vm_id} error scheduling action; #{rc.message}"
+                        msg = "Role #{name} : VM #{vm_id} error scheduling "\
+                              "action; #{rc.message}"
+
                         error_msgs << msg
-                        Log.error LOG_COMP, msg, @service.id()
+
+                        Log.error LOG_COMP, msg, @service.id
+
                         @service.log_error(msg)
                     else
                         vms_id << vm.id
@@ -527,15 +538,16 @@ module OpenNebula
                 end
             end
 
-            log_msg = "Action:#{action} scheduled on Role:#{self.name} VMs:#{vms_id.join(',')}"
-            Log.info LOG_COMP, log_msg, @service.id()
+            log_msg = "Action:#{action} scheduled on Role:#{name}"\
+                      "VMs:#{vms_id.join(',')}"
 
-            if error_msgs.empty?
-                return [true, log_msg]
-            else
-                error_msgs << log_msg
-                return [false, error_msgs.join('\n')]
-            end
+            Log.info LOG_COMP, log_msg, @service.id
+
+            return [true, log_msg] if error_msgs.empty?
+
+            error_msgs << log_msg
+
+            [false, error_msgs.join('\n')]
         end
 
         # Returns true if the VM state is failure
