@@ -482,31 +482,31 @@ post '/service_template/:id/action' do
         end
     when 'chown'
         if opts && opts['owner_id']
-            args = Array.new
+            args = []
             args << opts['owner_id'].to_i
             args << (opts['group_id'].to_i || -1)
 
             status 204
             service_template.chown(*args)
         else
-            OpenNebula::Error.new("Action #{action['perform']}: " <<
-                    "You have to specify a UID")
+            OpenNebula::Error.new("Action #{action['perform']}: "\
+                                  'You have to specify a UID')
         end
     when 'chgrp'
         if opts && opts['group_id']
             status 204
             service_template.chown(-1, opts['group_id'].to_i)
         else
-            OpenNebula::Error.new("Action #{action['perform']}: " <<
-                    "You have to specify a GID")
+            OpenNebula::Error.new("Action #{action['perform']}: "\
+                    'You have to specify a GID')
         end
     when 'chmod'
         if opts && opts['octet']
             status 204
             service_template.chmod_octet(opts['octet'])
         else
-            OpenNebula::Error.new("Action #{action['perform']}: " <<
-                    "You have to specify an OCTET")
+            OpenNebula::Error.new("Action #{action['perform']}: "\
+                                  'You have to specify an OCTET')
         end
     when 'update'
         if opts && opts['template_json']
@@ -526,8 +526,8 @@ post '/service_template/:id/action' do
 
             status 204
         else
-            OpenNebula::Error.new("Action #{action['perform']}: " <<
-                    "You have to provide a template")
+            OpenNebula::Error.new("Action #{action['perform']}: "\
+                                  'You have to provide a template')
         end
     when 'rename'
         status 204
