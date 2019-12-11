@@ -128,7 +128,8 @@ class ServiceLCM
         rc = @srv_pool.get(service_id) do |service|
             set_deploy_strategy(service)
 
-            if service.transient_state?
+            if service.transient_state? &&
+               service.state != Service::STATE['UNDEPLOYING']
                 Log.error LOG_COMP, 'Service cannot be undeployed in '\
                                     "state: #{service.state_str}"
 

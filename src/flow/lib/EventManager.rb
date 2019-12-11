@@ -233,7 +233,7 @@ class EventManager
             end
 
             id = retrieve_id(key)
-            Log.error LOG_COMP, "Node #{id} reached (#{state},#{lcm_state})"
+            Log.info LOG_COMP, "Node #{id} reached (#{state},#{lcm_state})"
 
             nodes.delete(id)
             unsubscribe(id, state, lcm_state, subscriber)
