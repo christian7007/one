@@ -59,9 +59,7 @@ module OpenNebula
             'FAILED_DEPLOYING'   => 7,
             'SCALING'            => 8,
             'FAILED_SCALING'     => 9,
-            'COOLDOWN'           => 10,
-            'DELETING'           => 11,
-            'FAILED_DELETING'    => 12
+            'COOLDOWN'           => 10
         }
 
         STATE_STR = %w[

@@ -50,7 +50,7 @@ module OpenNebula
             # TODO, what if cloud_auth is nil?
             @cloud_auth = cloud_auth
             @client = client
-            @body = nil
+            @one_pool = nil
         end
 
         def client
@@ -65,11 +65,17 @@ module OpenNebula
             osp = OpenNebulaServicePool.new(client)
             osp.info
 
-            @body = osp.to_json
+            @one_pool = osp
         end
 
         def to_json
-            @body
+            @one_pool.to_json
+        end
+
+        def each(&block)
+            return if @pool.nil?
+
+            @one_pool.each(&block)
         end
 
         # Retrieves a Service element from OpenNebula. The Service::info()

@@ -177,7 +177,7 @@ get '/service/:id' do
 
     rc = service.info
     if OpenNebula.is_error?(rc)
-        error CloudServer::HTTP_ERROR_CODE[service.errno], service.message
+        error CloudServer::HTTP_ERROR_CODE[rc.errno], rc.message
     end
 
     status 200
@@ -282,7 +282,7 @@ post '/service/:id/action' do
 end
 
 put '/service/:id/role/:name' do
-    service_pool = OpenNebula::ServicePool.new(@client)
+    service_pool = nil # OpenNebula::ServicePool.new(@client)
 
     rc = nil
     service_rc = service_pool.get(params[:id]) do |service|
