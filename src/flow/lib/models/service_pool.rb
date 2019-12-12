@@ -73,7 +73,7 @@ module OpenNebula
         end
 
         def each(&block)
-            return if @pool.nil?
+            return if @one_pool.nil?
 
             @one_pool.each(&block)
         end

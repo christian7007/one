@@ -144,16 +144,6 @@ ServiceTemplate.init_default_vn_name_template(conf[:vn_name_template])
 
 lcm = ServiceLCM.new(10, cloud_auth)
 
-em_conf = {
-    :cloud_auth      => cloud_auth,
-    :concurrency => 10
-}
-
-em = EventManager.new(em_conf)
-
-lcm.event_manager = em.am
-em.lcm = lcm.am
-
 ##############################################################################
 # Service
 ##############################################################################

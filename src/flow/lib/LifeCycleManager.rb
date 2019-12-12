@@ -50,9 +50,16 @@ class ServiceLCM
 
     def initialize(concurrency, cloud_auth)
         @cloud_auth = cloud_auth
-        @event_manager = nil
         @am = ActionManager.new(concurrency, true)
         @srv_pool = ServicePool.new(@cloud_auth, nil)
+
+        em_conf = {
+            :cloud_auth  => @cloud_auth,
+            :concurrency => 10,
+            :lcm         => @am
+        }
+
+        @event_manager = EventManager.new(em_conf).am
 
         # Register Action Manager actions
         @am.register_action(ACTIONS['DEPLOY'], method('deploy_action'))
@@ -74,6 +81,8 @@ class ServiceLCM
         # @am.register_action(ACTIONS['SCHED'], method('sched_action'))
 
         Thread.new { @am.start_listener }
+
+        Thread.new { catch_up }
     end
 
     ############################################################################
@@ -264,23 +273,20 @@ class ServiceLCM
     end
 
     def recover_action(service_id)
-        state = ''
-
         # TODO, kill other proceses? (other recovers)
         rc = @srv_pool.get(service_id) do |service|
-            state = service.state
-
-            case state
-            when Service::STATE['FAILED_DEPLOYING']
+            if service.can_recover_deploy?
                 recover_deploy(service)
-            when Service::STATE['FAILED_UNDEPLOYING']
+            elsif false #Service::STATE['FAILED_UNDEPLOYING'], Service::STATE['UNDEPLOYING']
                 recover_undeploy(service)
-            when Service::STATE['FAILED_SCALING']
+            elsif false #Service::STATE['FAILED_SCALING'], Service::STATE['SCALING']
                 recover_scale(service)
             else
-                OpenNebula::Error.new('Recover action is not ' \
+                break OpenNebula::Error.new('Recover action is not ' \
                             "available for state #{service.state_str}")
             end
+
+            service.update
         end
 
         Log.error LOG_COMP, rc.message if OpenNebula.is_error?(rc)
@@ -462,6 +468,20 @@ class ServiceLCM
     # Helpers
     ############################################################################
 
+    # Iterate through the services for catching up with the state of each servic
+    # used when the LCM starts
+    def catch_up
+        Log.error LOG_COMP, 'Catching up...'
+
+        @srv_pool.info
+
+        @srv_pool.each do |service|
+            if service.transient_state?
+                am.trigger_action(:recover, service.id, service.id)
+            end
+        end
+    end
+
     # Returns the deployment strategy for the given Service
     # @param [Service] service the service
     # rubocop:disable Naming/AccessorMethodName
@@ -553,11 +573,14 @@ class ServiceLCM
 
     def recover_deploy(service)
         service.roles.each do |name, role|
-            next if role.state != Role::STATE['FAILED_DEPLOYING']
+            next unless role.can_recover_deploy?
 
             nodes = role.recover_deploy
 
-            next if nodes.empty?
+            if nodes.empty?
+                role.set_state(Role::STATE['RUNNING'])
+                next
+            end
 
             @event_manager.trigger_action(:wait_deploy,
                                           service.id,

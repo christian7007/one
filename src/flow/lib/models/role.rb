@@ -74,8 +74,12 @@ module OpenNebula
             SCALING
             FAILED_SCALING
             COOLDOWN
-            DELETING
-            FAILED_DELETING
+        ]
+
+        RECOVER_DEPLOY_STATES = %w[
+            FAILED_DEPLOYING
+            DEPLOYING
+            PENDING
         ]
 
         SCALE_WAYS = {
@@ -101,6 +105,16 @@ module OpenNebula
         # @return [Integer] the role state
         def state
             @body['state'].to_i
+        end
+
+        def can_recover_deploy?
+            return RECOVER_DEPLOY_STATES.include? STATE_STR[state] if state != STATE['PENDING']
+
+            parents.each do |parent|
+                return false if @service.roles[parent].state != Service::STATE['RUNNING']
+            end
+
+            true
         end
 
         # Returns the role parents
@@ -767,7 +781,7 @@ module OpenNebula
                     else
                         deployed_nodes << vm_id
                     end
-                elsif vm_state == '3' && lcm_state == '16' # UNKNOWN
+                else
                     vm.resume
 
                     deployed_nodes << vm_id
