@@ -86,9 +86,17 @@ module OpenNebula
         #   The mutex will be unlocked after the block execution.
         #
         # @return [Service, OpenNebula::Error] The Service in case of success
-        def get(service_id, &block)
+        def get(service_id, external_client = nil, &block)
             service_id = service_id.to_i if service_id
-            service = Service.new_with_id(service_id, client)
+            aux_client = nil
+
+            if external_client.nil?
+                aux_client = client
+            else
+                aux_client = external_client
+            end
+
+            service = Service.new_with_id(service_id, aux_client)
 
             if block_given?
                 obj_mutex = nil

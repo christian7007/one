@@ -220,7 +220,7 @@ post '/service/:id/action' do
             u_id = opts['owner_id'].to_i
             g_id = (opts['group_id'] || -1).to_i
 
-            lcm.am.trigger_action(:chown, params[:id], params[:id], u_id, g_id)
+            lcm.chown_action(@client, params[:id], u_id, g_id)
         else
             OpenNebula::Error.new("Action #{action['perform']}: " \
                     'You have to specify a UID')
@@ -229,27 +229,21 @@ post '/service/:id/action' do
         if opts && opts['group_id']
             g_id = opts['group_id'].to_i
 
-            lcm.am.trigger_action(:chown, params[:id], params[:id], -1, g_id)
+            lcm.chown_action(@client, params[:id], -1, g_id)
         else
             OpenNebula::Error.new("Action #{action['perform']}: " \
                     'You have to specify a GID')
         end
     when 'chmod'
         if opts && opts['octet']
-            lcm.am.trigger_action(:chmod,
-                                  params[:id],
-                                  params[:id],
-                                  opts['octet'])
+            lcm.chmod_action(@client, params[:id], opts['octet'])
         else
             OpenNebula::Error.new("Action #{action['perform']}: " \
                     'You have to specify an OCTET')
         end
     when 'rename'
         if opts && opts['name']
-            lcm.am.trigger_action(:rename,
-                                  params[:id],
-                                  params[:id],
-                                  opts['name'])
+            lcm.rename_action(@client, params[:id], opts['name'])
         else
             OpenNebula::Error.new("Action #{action['perform']}: " \
                     'You have to specify a name')
@@ -314,13 +308,12 @@ post '/service/:id/role/:role_name/action' do
         opts['number'] = conf[:action_number] if opts['number'].nil?
     end
 
-    lcm.am.trigger_action(:sched,
-                          params[:id],
-                          params[:id],
-                          params[:role_name],
-                          action['perform'],
-                          opts['period'],
-                          opts['number'])
+    lcm.sched_action(@client,
+                     params[:id],
+                     params[:role_name],
+                     action['perform'],
+                     opts['period'],
+                     opts['number'])
 
     status 201
 end
