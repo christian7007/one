@@ -63,6 +63,16 @@ module OpenNebula
             PENDING
         ]
 
+        RECOVER_UNDEPLOY_STATES = %w[
+            FAILED_UNDEPLOYING
+            UNDEPLOYING
+        ]
+
+        RECOVER_SCALE_STATES = %w[
+            FAILED_SCALING
+            SCALING
+        ]
+
         LOG_COMP = 'SER'
 
         # Returns the service state
@@ -91,6 +101,14 @@ module OpenNebula
 
         def can_recover_deploy?
             RECOVER_DEPLOY_STATES.include? STATE_STR[state]
+        end
+
+        def can_recover_undeploy?
+            RECOVER_UNDEPLOY_STATES.include? STATE_STR[state]
+        end
+
+        def can_recover_scale?
+            RECOVER_SCALE_STATES.include? STATE_STR[state]
         end
 
         # Sets a new state

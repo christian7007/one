@@ -203,6 +203,8 @@ class EventManager
 
         rc_nodes = { :successful => [], :failure => [] }
 
+        return [true, rc_nodes] if nodes.empty?
+
         nodes.each do |node|
             subscribe(node, state, lcm_state, subscriber)
         end

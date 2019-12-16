@@ -249,11 +249,13 @@ class ServiceLCM
             set_cardinality(role, cardinality, force)
 
             if cardinality_diff > 0
+                role.scale_way('UP')
                 rc = deploy_roles({ role_name => role },
                                   'SCALING',
                                   'FAILED_SCALING',
                                   true)
             elsif cardinality_diff < 0
+                role.scale_way('DOWN')
                 rc = undeploy_roles({ role_name => role },
                                     'SCALING',
                                     'FAILED_SCALING',
@@ -277,9 +279,9 @@ class ServiceLCM
         rc = @srv_pool.get(service_id) do |service|
             if service.can_recover_deploy?
                 recover_deploy(service)
-            elsif false #Service::STATE['FAILED_UNDEPLOYING'], Service::STATE['UNDEPLOYING']
+            elsif service.can_recover_undeploy?
                 recover_undeploy(service)
-            elsif false #Service::STATE['FAILED_SCALING'], Service::STATE['SCALING']
+            elsif service.can_recover_scale?
                 recover_scale(service)
             else
                 break OpenNebula::Error.new('Recover action is not ' \
@@ -422,8 +424,6 @@ class ServiceLCM
             service.set_state(Service::STATE['FAILED_SCALING'])
             service.roles[role_name].set_state(Role::STATE['FAILED_SCALING'])
 
-            service.roles[role_name].scale_way('UP')
-
             service.update
         end
 
@@ -444,8 +444,6 @@ class ServiceLCM
                 !nodes[:failure].include?(node['deploy_id']) &&
                     nodes[:successful].include?(node['deploy_id'])
             end
-
-            role.scale_way('DOWN')
 
             service.update
         end
@@ -542,7 +540,7 @@ class ServiceLCM
         end
 
         roles.each do |_name, role|
-            rc = role.shutdown
+            rc = role.shutdown(false)
 
             if !rc[0]
                 role.set_state(Role::STATE[error_state])
@@ -577,11 +575,6 @@ class ServiceLCM
 
             nodes = role.recover_deploy
 
-            if nodes.empty?
-                role.set_state(Role::STATE['RUNNING'])
-                next
-            end
-
             @event_manager.trigger_action(:wait_deploy,
                                           service.id,
                                           service.id,
@@ -592,11 +585,9 @@ class ServiceLCM
 
     def recover_undeploy(service)
         service.roles.each do |name, role|
-            next if role.state != Role::STATE['FAILED_UNDEPLOYING']
+            next unless role.can_recover_undeploy?
 
             nodes = role.recover_undeploy
-
-            next if nodes.empty?
 
             @event_manager.trigger_action(:wait_undeploy,
                                           service.id,
@@ -608,11 +599,9 @@ class ServiceLCM
 
     def recover_scale(service)
         service.roles.each do |name, role|
-            next if role.state != Role::STATE['FAILED_SCALING']
+            next unless role.can_recover_scale?
 
             nodes, up = role.recover_scale
-
-            next if nodes.empty?
 
             if up
                 action = :wait_scaleup
