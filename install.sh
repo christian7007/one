@@ -293,6 +293,12 @@ VAR_DIRS="$VAR_LOCATION/remotes \
           $VAR_LOCATION/remotes/im/lxd-probes.d/host/system \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/monitor \
           $VAR_LOCATION/remotes/im/lxd-probes.d/vm/status \
+          $VAR_LOCATION/remotes/im/firecracker.d \
+          $VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon \
+          $VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor \
+          $VAR_LOCATION/remotes/im/firecracker-probes.d/host/system \
+          $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor \
+          $VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status \
           $VAR_LOCATION/remotes/im/vcenter.d \
           $VAR_LOCATION/remotes/im/ec2.d \
           $VAR_LOCATION/remotes/im/az.d \
@@ -473,6 +479,7 @@ INSTALL_FILES=(
     IM_PROBES_FILES:$VAR_LOCATION/remotes/im
     IM_PROBES_LIB_FILES:$VAR_LOCATION/remotes/im/lib
     IM_PROBES_KVM_FILES:$VAR_LOCATION/remotes/im/kvm.d
+    IM_PROBES_FIRECRACKER_FILES:$VAR_LOCATION/remotes/im/firecracker.d
     IM_PROBES_DUMMY_FILES:$VAR_LOCATION/remotes/im/dummy.d
     IM_PROBES_LXD_FILES:$VAR_LOCATION/remotes/im/lxd.d
     IM_PROBES_KVM_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/kvm-probes.d/host/beacon
@@ -499,6 +506,12 @@ INSTALL_FILES=(
     IM_PROBES_ONE_FILES:$VAR_LOCATION/remotes/im/one.d
     IM_PROBES_PACKET_FILES:$VAR_LOCATION/remotes/im/packet.d
     IM_PROBES_VERSION:$VAR_LOCATION/remotes
+    IM_PROBES_FIRECRACKER_HOST_BEACON_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/beacon
+    IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/monitor
+    IM_PROBES_FIRECRACKER_HOST_SYSTEM_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/host/system
+    IM_PROBES_FIRECRACKER_VM_MONITOR_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/monitor
+    IM_PROBES_FIRECRACKER_VM_STATUS_FILES:$VAR_LOCATION/remotes/im/firecracker-probes.d/vm/status
+    IM_PROBES_ETC_FIRECRACKER_PROBES_FILES:$VAR_LOCATION/remotes/etc/im/firecracker-probes.d
     AUTH_SSH_FILES:$VAR_LOCATION/remotes/auth/ssh
     AUTH_X509_FILES:$VAR_LOCATION/remotes/auth/x509
     AUTH_LDAP_FILES:$VAR_LOCATION/remotes/auth/ldap
@@ -1218,6 +1231,37 @@ IM_PROBES_LXD_VM_STATUS_FILES="\
 IM_PROBES_ETC_LXD_PROBES_FILES="\
     src/im_mad/remotes/lxd-probes.d/pci.conf \
     src/im_mad/remotes/lib/probe_db.conf"
+
+# Firecracker PROBES
+IM_PROBES_FIRECRACKER_FILES="\
+    src/im_mad/remotes/firecracker.d/collectd-client_control.sh \
+    src/im_mad/remotes/firecracker.d/collectd-client.rb"
+
+IM_PROBES_FIRECRACKER_HOST_BEACON_FILES="\
+     src/im_mad/remotes/firecracker-probes.d/host/beacon/collectd-client-shepherd.sh \
+     src/im_mad/remotes/firecracker-probes.d/host/beacon/date.sh"
+
+IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES="\
+     src/im_mad/remotes/firecracker-probes.d/host/monitor/linux_usage.rb \
+     src/im_mad/remotes/firecracker-probes.d/host/monitor/numa_usage.rb"
+
+IM_PROBES_FIRECRACKER_HOST_SYSTEM_FILES="\
+     src/im_mad/remotes/firecracker-probes.d/host/system/architecture.sh \
+     src/im_mad/remotes/firecracker-probes.d/host/system/cpu.sh \
+     src/im_mad/remotes/firecracker-probes.d/host/system/linux_host.rb \
+     src/im_mad/remotes/firecracker-probes.d/host/system/monitor_ds.rb \
+     src/im_mad/remotes/firecracker-probes.d/host/system/name.sh \
+     src/im_mad/remotes/firecracker-probes.d/host/system/numa_host.rb \
+     src/im_mad/remotes/firecracker-probes.d/host/system/version.sh"
+
+IM_PROBES_FIRECRACKER_VM_MONITOR_FILES="\
+     src/im_mad/remotes/firecracker-probes.d/vms/monitor/poll.rb \
+     src/im_mad/remotes/firecracker-probes.d/vms/monitor/monitor_ds_vm.rb"
+
+IM_PROBES_FIRECRACKER_VM_STATUS_FILES="\
+     src/im_mad/remotes/firecracker-probes.d/vms/status/status.rb"
+
+IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
 IM_PROBES_VCENTER_FILES="src/im_mad/remotes/vcenter.d/poll"
 
