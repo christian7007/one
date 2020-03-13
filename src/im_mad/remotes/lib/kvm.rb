@@ -122,7 +122,7 @@ module ProcessList
     #   param[Array] pids of the arrys to compute the CPU usage
     #   result[Array] array of cpu usage
     def self.cpu_info(pids)
-        multiplier = `nproc`.to_i * 100
+        multiplier = Integer(`grep -c processor /proc/cpuinfo`) * 100
 
         cpu_ini = {}
 
