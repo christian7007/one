@@ -1234,11 +1234,11 @@ IM_PROBES_ETC_LXD_PROBES_FILES="\
 
 # Firecracker PROBES
 IM_PROBES_FIRECRACKER_FILES="\
-    src/im_mad/remotes/firecracker.d/collectd-client_control.sh \
-    src/im_mad/remotes/firecracker.d/collectd-client.rb"
+    src/im_mad/remotes/firecracker.d/monitord-client_control.sh \
+    src/im_mad/remotes/firecracker.d/monitord-client.rb"
 
 IM_PROBES_FIRECRACKER_HOST_BEACON_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/host/beacon/collectd-client-shepherd.sh \
+     src/im_mad/remotes/firecracker-probes.d/host/beacon/monitord-client-shepherd.sh \
      src/im_mad/remotes/firecracker-probes.d/host/beacon/date.sh"
 
 IM_PROBES_FIRECRACKER_HOST_MONITOR_FILES="\
@@ -1259,7 +1259,7 @@ IM_PROBES_FIRECRACKER_VM_MONITOR_FILES="\
      src/im_mad/remotes/firecracker-probes.d/vms/monitor/monitor_ds_vm.rb"
 
 IM_PROBES_FIRECRACKER_VM_STATUS_FILES="\
-     src/im_mad/remotes/firecracker-probes.d/vms/status/status.rb"
+     src/im_mad/remotes/firecracker-probes.d/vms/status/state.rb"
 
 IM_PROBES_ETC_FIRECRACKER_PROBES_FILES="src/im_mad/remotes/lib/probe_db.conf"
 
