@@ -16,27 +16,17 @@
 # limitations under the License.                                             #
 #--------------------------------------------------------------------------- #
 
+$LOAD_PATH.unshift "#{File.dirname(__FILE__)}/../../vmm/firecracker/"
+
 require 'json'
+require 'base64'
+require 'client'
 
 #-------------------------------------------------------------------------------
 #  Firecracker Monitor Module. This module provides basic functionality to
 #  retrieve Firecracker instances information
 #-------------------------------------------------------------------------------
 module Firecracker
-
-    CONF = {
-        :datastore_location   => '/var/lib/one/datastores'
-    }
-
-    def self.load_conf
-        file = "#{__dir__}/../../etc/vmm/kvm/kvmrc"
-
-        begin
-            CONF.merge!(YAML.load_file("#{__dir__}/#{file}"))
-        rescue StandardError => e
-            OpenNebula.log_error e
-        end
-    end
 
     ###########################################################################
     # MicroVM metrics/info related methods
@@ -66,9 +56,9 @@ module Firecracker
         flush_metrics(uuid)
 
         # Read metrics
-        metrics_f = File.read(metrics_path).to_a[-1]
+        metrics_f = File.read(metrics_path).split("\n")[-1]
 
-        JSON.parse(metrics_f)
+        JSON.parse(metrics_f.chop)
     end
 
     def self.machine_config(uuid)
@@ -76,7 +66,7 @@ module Firecracker
             socket = "/srv/jailer/firecracker/#{uuid}/root/api.socket"
             client = FirecrackerClient.new(socket)
 
-            response = client.get('machine-config', data)
+            response = client.get('machine-config')
         rescue StandardError, FirecrackerError
             return
         end
@@ -89,7 +79,7 @@ module Firecracker
             socket = "/srv/jailer/firecracker/#{uuid}/root/api.socket"
             client = FirecrackerClient.new(socket)
 
-            response = client.get('', data)
+            response = client.get('')
         rescue StandardError, FirecrackerError
             return
         end
@@ -149,6 +139,20 @@ module ProcessList
         procs.each {|_i, p| p[:cpu] = cpu[p[:pid]] || 0 }
 
         procs
+    end
+
+    def self.retrieve_names
+        ps = `ps auxwww`
+        domains = []
+
+        ps.each_line do |l|
+            m = l.match(/firecracker.+(one-\d+)/)
+            next unless m
+
+            domains << m[1]
+        end
+
+        domains
     end
 
     # Get cpu usage in 100% for a set of PIDs
@@ -240,7 +244,7 @@ class Domain
         # Flush the microVM metrics
         hash = Firecracker.retrieve_info(@name)
 
-        return -1 if metrics.nil?
+        return -1 if hash.nil?
 
         @vm[:name] = @name
         @vm[:uuid] = hash['id']
@@ -255,7 +259,7 @@ class Domain
 
         @vm[:fc_state] = hash['state']
 
-        state = STATE_MAP[hash['STATE']] || 'UNKNOWN'
+        state = STATE_MAP[hash['state']] || 'UNKNOWN'
 
         @vm[:state] = state
 
@@ -338,6 +342,118 @@ class Domain
         @vm[:diskwrbytes] += vm_metrics['block']['write_bytes']
         @vm[:diskrdiops] += vm_metrics['block']['read_count']
         @vm[:diskwriops] += vm_metrics['block']['write_count']
+    end
+
+end
+
+#-------------------------------------------------------------------------------
+# This module provides a basic interface to get the list of domains in
+# the system and convert the information to be added to monitor or system
+# messages.
+#
+# It also gathers the state information of the domains for the state probe
+#-------------------------------------------------------------------------------
+module DomainList
+
+    ############################################################################
+    #  Module Interface
+    ############################################################################
+    def self.info
+        domains = FirecrackerDomains.new
+
+        domains.info
+        domains.to_monitor
+    end
+
+    def self.state_info
+        domains = FirecrackerDomains.new
+
+        domains.state_info
+    end
+
+    ############################################################################
+    # This is the implementation class for the module logic
+    ############################################################################
+    class FirecrackerDomains
+
+        include Firecracker
+        include ProcessList
+
+        def initialize
+            @vms = {}
+        end
+
+        # Get the list of VMs (known to OpenNebula) and their monitor info
+        # including process usage
+        #
+        #   @return [Hash] with KVM Domain classes indexed by their uuid
+        def info
+            info_each(true) do |name|
+                vm = Domain.new name
+
+                next if vm.info == -1
+
+                vm
+            end
+        end
+
+        # Get the list of VMs and their info
+        # not including process usage.
+        #
+        #   @return [Hash] with KVM Domain classes indexed by their uuid
+        def state_info
+            info_each(false) do |name|
+                vm = Domain.new name
+
+                next if vm.info == -1
+
+                vm
+            end
+        end
+
+        # Return a message string with VM monitor information
+        def to_monitor
+            mon_s = ''
+
+            @vms.each do |_uuid, vm|
+                mon_s << "VM = [ ID=\"#{vm[:id]}\", UUID=\"#{vm[:uuid]}\","
+                mon_s << " MONITOR=\"#{vm.to_monitor}\"]\n"
+            end
+
+            mon_s
+        end
+
+        private
+
+        # Generic build method for the info list. It filters and builds the
+        # domain list based on the given block
+        #   @param[Boolean] do_process, to get process information
+        def info_each(do_process)
+            return unless block_given?
+
+            vm_ps = ProcessList.process_list if do_process
+
+            names = ProcessList.retrieve_names
+
+            return @vms if names.empty?
+
+            names.each do |name|
+                vm = yield(name)
+
+                @vms[vm[:uuid]] = vm if vm
+            end
+
+            return @vms unless do_process
+
+            vm_ps.each do |uuid, ps|
+                next unless @vms[uuid]
+
+                @vms[uuid].merge!(ps)
+            end
+
+            @vms
+        end
+
     end
 
 end

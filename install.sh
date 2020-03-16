@@ -1136,6 +1136,7 @@ IM_PROBES_LIB_FILES="\
     src/im_mad/remotes/lib/kvm.rb \
     src/im_mad/remotes/lib/lxd.rb \
     src/im_mad/remotes/lib/linux.rb \
+    src/im_mad/remotes/lib/firecracker.rb\
     src/im_mad/remotes/lib/numa_common.rb \
     src/im_mad/remotes/lib/probe_db.rb"
 

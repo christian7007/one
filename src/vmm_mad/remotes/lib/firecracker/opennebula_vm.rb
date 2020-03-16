@@ -113,7 +113,7 @@ class OpenNebulaVM
 
         # Set logger info
         fc['deployment-file']['logger'] = {}
-        #fc['deployment-file']['logger']['log_fifo'] = 'logs.fifo'
+        fc['deployment-file']['logger']['log_fifo'] = 'logs.fifo'
         fc['deployment-file']['logger']['metrics_fifo'] = 'metrics.fifo'
 
         boot_source(fc['deployment-file']['boot-source'])
