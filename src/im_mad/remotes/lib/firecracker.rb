@@ -57,8 +57,9 @@ module Firecracker
 
         # Read metrics
         metrics_f = File.read(metrics_path).split("\n")[-1]
+        metrics_f.tr!("\u0000", '')
 
-        JSON.parse(metrics_f.chop)
+        JSON.parse(metrics_f)
     end
 
     def self.machine_config(uuid)
