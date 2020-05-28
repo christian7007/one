@@ -37,7 +37,7 @@ func GenName(name string) string {
 }
 
 func WaitResource(f func() bool) bool {
-	for i := 0; i < 20; i++ {
+	for i := 0; i < 25; i++ {
 		if f() {
 			return true
 		}
